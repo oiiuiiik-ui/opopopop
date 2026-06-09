@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSF 글로벌 소싱</title>
+  <style>
+    /* ==========================================================================
+       RESET & BASE
+       ========================================================================== */
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    html { 
+      font-size: 16px; 
+      scroll-behavior: smooth; 
+    }
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', sans-serif;
+      background: #f7f4ef;
+      color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    :root {
+      --red:   #c82020;
+      --ink:   #1a1a1a;
+      --ink2:  #3a3a3a;
+      --ink3:  #666;
+      --ink4:  #999;
+      --bg:    #f7f4ef;
+      --bg2:   #eeebe4;
+      --bg3:   #e4e0d8;
+      --white: #ffffff;
+      --bdr:   rgba(26,26,26,.12);
+      --bdr2:  rgba(26,26,26,.2);
+    }
+
+    /* ==========================================================================
+       HERO SECTION
+       ========================================================================== */
+    .hero { 
+      padding: 64px 60px 40px; 
+      border-bottom: 2px solid var(--ink); 
+    }
+    .eyebrow {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 10px;
+      font-size: 11px; 
+      font-weight: 700; 
+      letter-spacing: .2em;
+      text-transform: uppercase; 
+      color: var(--red); 
+      margin-bottom: 18px;
+    }
+    .eyebrow::before { 
+      content: ''; 
+      width: 24px; 
+      height: 2px; 
+      background: var(--red); 
+      display: block; 
+    }
+    .hero-title {
+      font-size: clamp(64px, 11vw, 140px);
+      font-weight: 900; 
+      line-height: .92; 
+      letter-spacing: -.02em; 
+      color: var(--ink);
+    }
+    .hero-title .tr { color: var(--red); }
+    .hero-title .ts { color: transparent; -webkit-text-stroke: 2px var(--ink); }
+    .hero-title .tsr { color: transparent; -webkit-text-stroke: 2px var(--red); }
+    .hero-meta {
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      flex-wrap: wrap; 
+      gap: 16px; 
+      margin-top: 24px; 
+      padding-top: 20px;
+      border-top: 1px solid var(--bdr2);
+    }
+    .hero-countries { 
+      font-size: 12px; 
+      font-weight: 600; 
+      color: var(--ink3); 
+      letter-spacing: .04em; 
+      line-height: 1.7; 
+    }
+    .hero-countries b { color: var(--ink); }
+    .hero-badge {
+      display: inline-block; 
+      padding: 8px 18px; 
+      background: var(--red);
+      color: #fff; 
+      font-size: 11px; 
+      font-weight: 700; 
+      letter-spacing: .14em;
+      text-transform: uppercase; 
+      border-radius: 2px; 
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       TABS
+       ========================================================================== */
+    .tabs-wrap {
+      position: sticky; 
+      top: 0; 
+      z-index: 90;
+      background: #f7f4efee; 
+      border-bottom: 2px solid var(--ink);
+    }
+    .tabs { 
+      display: flex; 
+      overflow-x: auto; 
+      padding: 0 60px; 
+      scrollbar-width: none; 
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0; 
+      padding: 16px 22px; 
+      font-size: 12px; 
+      font-weight: 700;
+      letter-spacing: .08em; 
+      text-transform: uppercase; 
+      color: var(--ink3);
+      cursor: pointer; 
+      border-bottom: 3px solid transparent; 
+      margin-bottom: -2px;
+      transition: color .18s, border-color .18s; 
+      white-space: nowrap; 
+      user-select: none;
+    }
+    .tab:hover { color: var(--ink); }
+    .tab.active { 
+      color: var(--red); 
+      border-bottom-color: var(--red); 
+    }
+    .tab-num {
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      min-width: 20px; 
+      height: 20px; 
+      padding: 0 5px;
+      background: var(--bg3); 
+      border-radius: 99px;
+      font-size: 10px; 
+      font-weight: 700; 
+      color: var(--ink3); 
+      margin-left: 5px;
+      transition: background .18s, color .18s;
+    }
+    .tab.active .tab-num { 
+      background: var(--red); 
+      color: #fff; 
+    }
+
+    /* ==========================================================================
+       SECTIONS
+       ========================================================================== */
+    .section { 
+      display: none; 
+      padding: 52px 60px 80px; 
+    }
+    .section.active { 
+      display: block; 
+      animation: fadeUp .35s ease; 
+    }
+    @keyframes fadeUp { 
+      from { opacity: 0; transform: translateY(10px) } 
+      to { opacity: 1; transform: none } 
+    }
+
+    .sec-head {
+      display: flex; 
+      align-items: flex-end; 
+      justify-content: space-between;
+      padding-bottom: 20px; 
+      border-bottom: 1px solid var(--bdr2);
+      margin-bottom: 28px; 
+      flex-wrap: wrap; 
+      gap: 12px;
+    }
+    .sec-title-ko { 
+      font-size: 36px; 
+      font-weight: 900; 
+      color: var(--ink); 
+      letter-spacing: -.03em; 
+      line-height: 1; 
+    }
+    .sec-title-en { 
+      font-size: 11px; 
+      font-weight: 700; 
+      letter-spacing: .18em; 
+      text-transform: uppercase; 
+      color: var(--red); 
+      margin-top: 5px; 
+    }
+    .sec-num { 
+      font-size: 56px; 
+      font-weight: 900; 
+      color: var(--red); 
+      opacity: .18; 
+      line-height: 1; 
+    }
+
+    /* ==========================================================================
+       CHIPS (Filters)
+       ========================================================================== */
+    .chips { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 7px; 
+      margin-bottom: 22px; 
+    }
+    .chip {
+      padding: 5px 13px; 
+      border: 1.5px solid var(--bdr2); 
+      border-radius: 2px;
+      font-size: 11px; 
+      font-weight: 700; 
+      letter-spacing: .08em; 
+      text-transform: uppercase;
+      color: var(--ink3); 
+      background: var(--white); 
+      cursor: pointer; 
+      transition: all .15s; 
+      user-select: none;
+    }
+    .chip:hover { 
+      border-color: var(--red); 
+      color: var(--red); 
+    }
+    .chip.active { 
+      background: var(--red); 
+      border-color: var(--red); 
+      color: #fff; 
+    }
+    .chip-all { 
+      border-color: var(--ink2); 
+      color: var(--ink2); 
+    }
+    .chip-all.active { 
+      background: var(--ink); 
+      border-color: var(--ink); 
+      color: #fff; 
+    }
+
+    /* ==========================================================================
+       SEARCH
+       ========================================================================== */
+    .search-row { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      margin-bottom: 18px; 
+      flex-wrap: wrap; 
+    }
+    .search-input {
+      width: 300px; 
+      padding: 10px 15px; 
+      border: 1.5px solid var(--bdr2); 
+      border-radius: 2px;
+      background: var(--white); 
+      font-size: 14px; 
+      font-family: inherit; 
+      color: var(--ink);
+      outline: none; 
+      transition: border-color .18s;
+    }
+    .search-input:focus { border-color: var(--red); }
+    .search-input::placeholder { color: var(--ink4); font-size: 13px; }
+    .result-info { font-size: 12px; color: var(--ink4); margin-left: auto; }
+    .result-info b { color: var(--red); font-weight: 700; }
+
+    /* ==========================================================================
+       TABLE
+       ========================================================================== */
+    .tbl-outer { 
+      border: 2px solid var(--ink); 
+      background: var(--white); 
+      overflow: hidden; 
+    }
+    .tbl-scroll { overflow-x: auto; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      min-width: 600px; 
+    }
+    thead tr { background: var(--ink); }
+    th {
+      padding: 13px 20px; 
+      font-size: 10px; 
+      font-weight: 700; 
+      letter-spacing: .2em;
+      text-transform: uppercase; 
+      color: rgba(255,255,255,.6); 
+      text-align: left; 
+      white-space: nowrap;
+    }
+    th:first-child { color: #fff; }
+    tbody tr { 
+      border-bottom: 1px solid var(--bg3); 
+      transition: background .12s; 
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--bg2); }
+    tbody tr.hide { display: none; }
+    td { padding: 13px 20px; vertical-align: middle; }
+    .td-ko { font-size: 14px; font-weight: 700; color: var(--ink); }
+    .td-en { font-size: 13px; font-weight: 400; color: var(--ink2); }
+    .td-pkg { font-size: 12px; color: var(--ink3); font-family: Consolas, 'Courier New', monospace; white-space: nowrap; }
+
+    /* ==========================================================================
+       ORIGIN BADGE
+       ========================================================================== */
+    .ob {
+      display: inline-flex; 
+      align-items: center; 
+      gap: 5px;
+      padding: 4px 10px; 
+      border-radius: 2px; 
+      font-size: 11px; 
+      font-weight: 700; 
+      white-space: nowrap;
+    }
+    .ob::before { 
+      content: ''; 
+      width: 6px; 
+      height: 6px; 
+      border-radius: 50%; 
+      display: block; 
+      flex-shrink: 0; 
+    }
+    .o-cn { background: #fef1ef; color: #b83020; } .o-cn::before { background: #b83020; }
+    .o-it { background: #eef2fc; color: #2650a8; } .o-it::before { background: #2650a8; }
+    .o-vn { background: #eef7f0; color: #1c7438; } .o-vn::before { background: #1c7438; }
+    .o-my { background: #fdf6e6; color: #a05808; } .o-my::before { background: #a05808; }
+    .o-th { background: #fef5ea; color: #b54c08; } .o-th::before { background: #b54c08; }
+    .o-id { background: #f3effe; color: #5828a8; } .o-id::before { background: #5828a8; }
+    .o-au { background: #eaf5fb; color: #0e6898; } .o-au::before { background: #0e6898; }
+    .o-in { background: #f5f9ec; color: #4c6c10; } .o-in::before { background: #4c6c10; }
+    .o-ar { background: #eff1fd; color: #2c3c98; } .o-ar::before { background: #2c3c98; }
+    .o-ph { background: #eef6f0; color: #1c6038; } .o-ph::before { background: #1c6038; }
+    .o-jp { background: #fff0f3; color: #a81c38; } .o-jp::before { background: #a81c38; }
+    .o-tr { background: #fef3e6; color: #8c3c06; } .o-tr::before { background: #8c3c06; }
+    .o-es { background: #fef0ee; color: #982010; } .o-es::before { background: #982010; }
+    .o-ru { background: #f0f0f4; color: #3c3c7c; } .o-ru::before { background: #3c3c7c; }
+    .o-mx { background: #f2f0ea; color: #555555; } .o-mx::before { background: #888888; }
+
+    .no-result { 
+      display: none; 
+      padding: 56px 20px; 
+      text-align: center; 
+      font-size: 14px; 
+      color: var(--ink4); 
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .footer {
+      padding: 28px 60px; 
+      border-top: 2px solid var(--ink);
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between;
+      flex-wrap: wrap; 
+      gap: 10px; 
+      background: var(--bg);
+    }
+    .footer-logo { 
+      font-size: 20px; 
+      font-weight: 900; 
+      letter-spacing: .05em; 
+      color: var(--ink); 
+    }
+    .footer-logo span { color: var(--red); }
+    .footer-note { 
+      font-size: 11px; 
+      color: var(--ink4); 
+      letter-spacing: .05em; 
+    }
+
+    @media (max-width: 720px) {
+      .hero { padding: 44px 20px 32px; }
+      .tabs { padding: 0 12px; }
+      .section { padding: 36px 20px 60px; }
+      .footer { padding: 24px 20px; }
+      .search-input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="eyebrow">씨에스에프(주) &middot; 원재료 카탈로그</div>
+    <div class="hero-title">
+      <span class="tr">글로</span><span>벌</span><br>
+      <span class="ts">소</span><span class="tsr">싱</span>
+    </div>
+    <div class="hero-meta">
+      <p class="hero-countries"></p>
+    </div>
+  </div>
+
+  <div class="tabs-wrap">
+    <div class="tabs" id="tabs">
+      <div class="tab active" data-cat="all">전체<span class="tab-num">62</span></div>
+      <div class="tab" data-cat="ag">농산물<span class="tab-num">34</span></div>
+      <div class="tab" data-cat="vi">식초<span class="tab-num">8</span></div>
+      <div class="tab" data-cat="aa">아미노산<span class="tab-num">3</span></div>
+      <div class="tab" data-cat="ad">첨가물<span class="tab-num">17</span></div>
+      <div class="tab" data-cat="vo">식물성유지&middot;유기농<span class="tab-num">5</span></div>
+      <div class="tab" data-cat="sf">수산&middot;축산&middot;사료<span class="tab-num">7</span></div>
+      <div class="tab" data-cat="ot">기타<span class="tab-num">5</span></div>
+    </div>
+  </div>
+
+  <div class="section active" id="sec-all">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">전체 품목</div>
+        <div class="sec-title-en">All Products</div>
+      </div>
+      <div class="sec-num">62</div>
+    </div>
+    <div class="search-row">
+      <input class="search-input" id="s-all" placeholder="품목명 검색 (한글 / 영문 / 원산지)" oninput="doSearch('all', this.value)">
+      <span class="result-info" id="r-all"><b>62</b>개 품목</span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-all"></tbody>
+        </table>
+        <div class="no-result" id="nr-all">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-ag">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">농산물</div>
+        <div class="sec-title-en">Agricultural Products</div>
+      </div>
+      <div class="sec-num">34</div>
+    </div>
+    <div class="chips" id="ch-ag"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-ag" placeholder="농산물 검색..." oninput="doSearch('ag', this.value)">
+      <span class="result-info" id="r-ag"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-ag"></tbody>
+        </table>
+        <div class="no-result" id="nr-ag">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-vi">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">식초</div>
+        <div class="sec-title-en">Vinegar</div>
+      </div>
+      <div class="sec-num">8</div>
+    </div>
+    <div class="chips" id="ch-vi"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-vi" placeholder="식초 검색..." oninput="doSearch('vi', this.value)">
+      <span class="result-info" id="r-vi"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-vi"></tbody>
+        </table>
+        <div class="no-result" id="nr-vi">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-aa">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">아미노산</div>
+        <div class="sec-title-en">Amino Acid</div>
+      </div>
+      <div class="sec-num">3</div>
+    </div>
+    <div class="chips" id="ch-aa"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-aa" placeholder="아미노산 검색..." oninput="doSearch('aa', this.value)">
+      <span class="result-info" id="r-aa"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-aa"></tbody>
+        </table>
+        <div class="no-result" id="nr-aa">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-ad">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">첨가물</div>
+        <div class="sec-title-en">Food Additives</div>
+      </div>
+      <div class="sec-num">17</div>
+    </div>
+    <div class="chips" id="ch-ad"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-ad" placeholder="첨가물 검색..." oninput="doSearch('ad', this.value)">
+      <span class="result-info" id="r-ad"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-ad"></tbody>
+        </table>
+        <div class="no-result" id="nr-ad">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-vo">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">식물성 유지 &middot; 유기농</div>
+        <div class="sec-title-en">Vegetable Oil &amp; Organic</div>
+      </div>
+      <div class="sec-num">5</div>
+    </div>
+    <div class="chips" id="ch-vo"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-vo" placeholder="유지 / 유기농 검색..." oninput="doSearch('vo', this.value)">
+      <span class="result-info" id="r-vo"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-vo"></tbody>
+        </table>
+        <div class="no-result" id="nr-vo">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-sf">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">수산물 &middot; 축산물 &middot; 사료원료</div>
+        <div class="sec-title-en">Seafood &middot; Livestock &middot; Feed</div>
+      </div>
+      <div class="sec-num">7</div>
+    </div>
+    <div class="chips" id="ch-sf"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-sf" placeholder="수산 / 축산 / 사료 검색..." oninput="doSearch('sf', this.value)">
+      <span class="result-info" id="r-sf"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-sf"></tbody>
+        </table>
+        <div class="no-result" id="nr-sf">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-ot">
+    <div class="sec-head">
+      <div>
+        <div class="sec-title-ko">기타</div>
+        <div class="sec-title-en">Other Products</div>
+      </div>
+      <div class="sec-num">5</div>
+    </div>
+    <div class="chips" id="ch-ot"></div>
+    <div class="search-row">
+      <input class="search-input" id="s-ot" placeholder="기타 품목 검색..." oninput="doSearch('ot', this.value)">
+      <span class="result-info" id="r-ot"></span>
+    </div>
+    <div class="tbl-outer">
+      <div class="tbl-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:26%">품목명 (한글)</th>
+              <th style="width:32%">영문명</th>
+              <th style="width:16%">포장규격</th>
+              <th style="width:26%">원산지</th>
+            </tr>
+          </thead>
+          <tbody id="tb-ot"></tbody>
+        </table>
+        <div class="no-result" id="nr-ot">검색 결과가 없습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-logo"><span>C</span>SF Corporation</div>
+    <div class="footer-note">Customer &middot; Satisfaction &middot; Food &nbsp;|&nbsp; 원산지 정보는 수급 상황에 따라 변경될 수 있습니다</div>
+  </div>
+
+  <script>
+    // 제품 데이터 배열
+    const productData = {
+      ag: [
+        { ko: 'CSP (농축대두단백)', en: 'Soy protein concentrate', pkg: '20kg', org: '중국' },
+        { ko: 'ISP (분리대두단백)', en: 'Isolated soy protein', pkg: '20kg', org: '중국' },
+        { ko: 'ISP (분리대두단백, 수용성)', en: 'Instant isolated soy protein', pkg: '20kg', org: '중국' },
+        { ko: '가염땅콩버터', en: 'Salted peanut butter', pkg: '10kg', org: '중국' },
+        { ko: '감귤쌕', en: 'Mandarin orange sacs', pkg: '18kg', org: '중국' },
+        { ko: '냉동당근', en: 'Frozen carrot', pkg: '10kg', org: '중국' },
+        { ko: '냉동대파', en: 'Frozen green onion', pkg: '10kg', org: '중국' },
+        { ko: '냉동부추', en: 'Frozen leek', pkg: '10kg', org: '중국' },
+        { ko: '냉동양파', en: 'Frozen onion', pkg: '10kg', org: '중국' },
+        { ko: '당면', en: 'Dang Myun', pkg: '10 / 15kg', org: '중국' },
+        { ko: '땅콩버터', en: 'Peanut butter', pkg: '10kg', org: '인도네시아' },
+        { ko: '땅콩버터 98%', en: 'Peanut butter 98%', pkg: '10 / 20kg', org: '중국' },
+        { ko: '땅콩버터 (Dark)', en: 'Peanut butter (Dark)', pkg: '10 / 20kg', org: '중국' },
+        { ko: '땅콩반태', en: 'Half peanut', pkg: '20kg', org: '중국' },
+        { ko: '땅콩분태', en: 'Peanut split', pkg: '20kg', org: '중국' },
+        { ko: '땅콩분태 (4-6) mesh', en: 'Split peanut (4-6 mesh)', pkg: '500g x 40', org: '중국' },
+        { ko: '땅콩분태 (5-8) mesh', en: 'Split peanut (5-8 mesh)', pkg: '500g x 40', org: '중국' },
+        { ko: '땅콩분태 (6-10) mesh', en: 'Split peanut (6-10 mesh)', pkg: '500g x 40', org: '중국' },
+        { ko: '땅콩분태 1/16"', en: 'Split peanut 1/16"', pkg: '20kg', org: '중국' },
+        { ko: '밀글루텐', en: 'Wheat gluten', pkg: '25kg', org: '중국/호주/이탈리아/러시아' },
+        { ko: '소맥전분', en: 'Wheat starch', pkg: '25 / 22kg', org: '이탈리아/호주' },
+        { ko: '입힘땅콩', en: 'Coated peanut', pkg: '10kg x 2', org: '중국' },
+        { ko: '칼라만시 착즙액', en: 'Aseptic calamansi juice', pkg: '200kg', org: '베트남' },
+        { ko: '커피생두 (로부스타)', en: 'Green coffee bean', pkg: '60kg', org: '베트남' },
+        { ko: '코코넛크림액', en: 'Coconut cream', pkg: '20kg', org: '인도네시아' },
+        { ko: '코코넛크림파우더', en: 'Coconut cream powder', pkg: '25kg', org: '말레이시아' },
+        { ko: '코코아버터', en: 'Cocoa butter', pkg: '25kg', org: '말레이시아' },
+        { ko: '탈지대두박', en: 'Defatted soy flake', pkg: '600kg', org: '인도' },
+        { ko: '탈지땅콩분말', en: 'Defatted peanut powder', pkg: '20kg', org: '중국' },
+        { ko: '토마토페이스트', en: 'Tomate paste', pkg: '240kg', org: '중국' },
+        { ko: '포도머스트농축-cantine', en: 'Red grape must concentrate', pkg: '260kg', org: '이탈리아' },
+        { ko: '모스카토농축액', en: 'Moscato concentrate', pkg: '260kg', org: '이탈리아' },
+        { ko: '하이올레익 땅콩반태', en: 'Hioleic half peanut', pkg: '25kg', org: '아르헨티나' },
+        { ko: '수박주스', en: 'Watermelon juice', pkg: '1kg x 10', org: '베트남' }
+      ],
+      vi: [
+        { ko: '발사믹식초 A', en: 'Balsamic vinegar A', pkg: '10L', org: '이탈리아' },
+        { ko: '발사믹식초 A 노카라멜', en: 'Balsamic vinegar A (No caramel)', pkg: '10L', org: '이탈리아' },
+        { ko: '발사믹식초 A2', en: 'Balsamic vinegar A2', pkg: '220L', org: '이탈리아' },
+        { ko: '발사믹식초 D+', en: 'Balsamic vinegar D+', pkg: '5L / 220L', org: '이탈리아' },
+        { ko: '발사믹식초 D+ 노카라멜', en: 'Balsamic vinegar D+ (No caramel)', pkg: '220L', org: '이탈리아' },
+        { ko: '유기농 발사믹식초', en: 'Balsamic vinegar BIO', pkg: '220L', org: '이탈리아' },
+        { ko: '레드와인식초', en: 'Red wine vinegar', pkg: '5L', org: '이탈리아' },
+        { ko: '화이트와인식초', en: 'White wine vinegar', pkg: '5L', org: '이탈리아' }
+      ],
+      aa: [
+        { ko: 'BCAA', en: 'BCAA', pkg: '25kg', org: '중국' },
+        { ko: '엘-카르니틴', en: 'L-carnitine', pkg: '25kg', org: '중국' },
+        { ko: '인스턴트 EAA', en: 'Instant EAA', pkg: '25kg', org: '중국' }
+      ],
+      ad: [
+        { ko: 'D-자일로스', en: 'D-xylose', pkg: '25kg', org: '중국' },
+        { ko: 'MSG', en: 'Monosodium glutamate', pkg: '25kg', org: '중국' },
+        { ko: '글리신', en: 'Glycine', pkg: '25kg', org: '중국' },
+        { ko: '말토덱스트린', en: 'Maltodextrin', pkg: '20kg', org: '중국' },
+        { ko: '폴리인산나트륨', en: 'Sodium Tripolyphosphate', pkg: '25kg', org: '태국' },
+        { ko: '메타인산나트륨', en: 'Sodium Metaphosphate', pkg: '25kg', org: '태국' },
+        { ko: '함수구연산', en: 'Citric acid monohydrate', pkg: '25kg', org: '중국' },
+        { ko: '무수구연산', en: 'Citric acid anhydrate', pkg: '25kg', org: '중국' },
+        { ko: '수크랄로스', en: 'Sucralose', pkg: '10kg', org: '중국' },
+        { ko: '에리스리톨', en: 'Erythritol', pkg: '25kg', org: '중국' },
+        { ko: '이산화규소', en: 'Silicon dioxide', pkg: '17kg', org: '태국' },
+        { ko: '잔탄검 200', en: 'Xanthan gum 200', pkg: '25kg', org: '중국' },
+        { ko: '제3인산칼슘', en: 'Tricalcium phosphate', pkg: '25kg', org: '중국' },
+        { ko: '트레할로스', en: 'Trehalose', pkg: '20kg', org: '중국' },
+        { ko: '함수포도당', en: 'Glucose monohydrate', pkg: '20kg', org: '중국' },
+        { ko: '탄산칼슘', en: 'Calcium carbonate', pkg: '25kg', org: '중국' },
+        { ko: '자일리톨', en: 'Xylitol', pkg: '25kg', org: '중국' }
+      ],
+      vo: [
+        { ko: '대두유', en: 'Soybean oil', pkg: '18L / 180kg', org: '중국' },
+        { ko: '정제야자유', en: 'RBD coconut oil', pkg: '18kg', org: '말레이시아' },
+        { ko: '팜쇼트닝', en: 'Palm shortening', pkg: '15 / 20kg', org: '인도네시아/말레이시아' },
+        { ko: '카놀라유', en: 'Canola oil', pkg: '20L', org: '호주' },
+        { ko: '유기농 토마토페이스트', en: 'Organic tomate paste', pkg: '240~243kg', org: '터키' }
+      ],
+      sf: [
+        { ko: '냉동새우', en: 'Frozen shrimp', pkg: '10kg', org: '베트남' },
+        { ko: '냉동문어', en: 'Frozen Octopus', pkg: '10kg', org: '필리핀' },
+        { ko: '새우젓', en: 'Salted shrimp', pkg: '20kg', org: '베트남' },
+        { ko: '냉동닭가슴살', en: 'Frozen Chicken Breast', pkg: '10kg', org: '태국' },
+        { ko: '라이신황산염', en: 'L-lysine sulphate', pkg: '25 / 750kg', org: '중국' },
+        { ko: '트레오닌', en: 'L-threonine', pkg: '25kg', org: '중국' },
+        { ko: '옥수수글루텐', en: 'Corn gluten', pkg: '1,000kg', org: '중국' }
+      ],
+      ot: [
+        { ko: '수입설탕', en: 'White sugar', pkg: '25 / 500 / 1000kg', org: '말레이시아' },
+        { ko: '식물성크리머', en: 'Creamer Powder', pkg: '20kg', org: '베트남' },
+        { ko: '엘더플라워추출물', en: 'Elder Flower Extract', pkg: '15kg', org: '일본' },
+        { ko: '파라핀왁스', en: 'Paraffin wax', pkg: '25kg', org: '중국' },
+        { ko: '활성탄', en: 'Activated carbon', pkg: '500 / 10kg', org: '스페인' }
+      ]
+    };
+
+    // 국가별 클래스 매핑
+    const countryCodeClasses = {
+      '중국': 'o-cn', '이탈리아': 'o-it', '베트남': 'o-vn', '말레이시아': 'o-my', '태국': 'o-th',
+      '인도네시아': 'o-id', '호주': 'o-au', '인도': 'o-in', '아르헨티나': 'o-ar', '필리핀': 'o-ph',
+      '일본': 'o-jp', '터키': 'o-tr', '스페인': 'o-es', '러시아': 'o-ru'
+    };
+
+    // 원산지에 따른 클래스 반환 함수
+    function getOriginClass(origin) {
+      const parts = origin.split('/');
+      return parts.length > 2 ? 'o-mx' : (countryCodeClasses[parts[0].trim()] || 'o-mx');
+    }
+
+    // 뱃지 HTML 생성 함수
+    function createBadge(origin) {
+      return `<span class="ob ${getOriginClass(origin)}">${origin}</span>`;
+    }
+
+    // 테이블 행 생성 함수
+    function buildRows(items, targetId) {
+      const tbody = document.getElementById(targetId);
+      if (!tbody) return;
+      
+      let html = '';
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        html += `<tr data-ko="${item.ko}" data-en="${item.en.toLowerCase()}" data-org="${item.org}">`
+              + `<td class="td-ko">${item.ko}</td>`
+              + `<td class="td-en">${item.en}</td>`
+              + `<td class="td-pkg">${item.pkg}</td>`
+              + `<td>${createBadge(item.org)}</td>`
+              + `</tr>`;
+      }
+      tbody.innerHTML = html;
+    }
+
+    // 카테고리 정보 업데이트 함수
+    function setInfo(category, visibleCount, totalCount) {
+      const infoElement = document.getElementById(`r-${category}`);
+      if (infoElement) {
+        infoElement.innerHTML = `<b>${visibleCount}</b> / ${totalCount}개 품목`;
+      }
+    }
+
+    // 필터 칩(Chip) 생성 함수
+    function buildChips(category, items) {
+      const chipContainer = document.getElementById(`ch-${category}`);
+      if (!chipContainer) return;
+
+      const seenOrigins = {};
+      const uniqueOrigins = [];
+      
+      // 원산지 중복 제거
+      for (let i = 0; i < items.length; i++) {
+        const firstOrigin = items[i].org.split('/')[0].trim();
+        if (!seenOrigins[firstOrigin]) {
+          seenOrigins[firstOrigin] = true;
+          uniqueOrigins.push(firstOrigin);
+        }
+      }
+
+      // '전체' 칩 추가
+      let html = `<span class="chip chip-all active" onclick="selectChip(this, '${category}', '')" data-org="">전체</span>`;
+      
+      // 각 원산지 칩 추가
+      for (let j = 0; j < uniqueOrigins.length; j++) {
+        html += `<span class="chip" onclick="selectChip(this, '${category}', '${uniqueOrigins[j]}')" data-org="${uniqueOrigins[j]}">${uniqueOrigins[j]}</span>`;
+      }
+      
+      chipContainer.innerHTML = html;
+    }
+
+    // 칩 클릭 시 실행되는 함수
+    function selectChip(element, category, origin) {
+      const chips = document.querySelectorAll(`#ch-${category} .chip`);
+      for (let i = 0; i < chips.length; i++) {
+        chips[i].classList.remove('active');
+      }
+      element.classList.add('active');
+      
+      const searchInput = document.getElementById(`s-${category}`);
+      filterTable(category, searchInput ? searchInput.value : '', origin);
+    }
+
+    // 검색어 입력 시 실행되는 함수
+    function doSearch(category, query) {
+      const activeChip = document.querySelector(`#ch-${category} .chip.active`);
+      const originFilter = activeChip ? activeChip.getAttribute('data-org') : '';
+      filterTable(category, query, originFilter);
+    }
+
+    // 테이블 필터링 메인 로직
+    function filterTable(category, query, originFilter) {
+      const tbody = document.getElementById(`tb-${category}`);
+      if (!tbody) return;
+
+      const lowerQuery = query.toLowerCase().trim();
+      const rows = tbody.querySelectorAll('tr');
+      let visibleCount = 0;
+
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const textKo = row.getAttribute('data-ko');
+        const textEn = row.getAttribute('data-en');
+        const textOrg = row.getAttribute('data-org');
+
+        // 검색어 매칭 여부
+        const isTextMatch = !lowerQuery 
+                            || (textKo && textKo.includes(query)) 
+                            || (textEn && textEn.includes(lowerQuery)) 
+                            || (textOrg && textOrg.includes(query));
+        
+        // 원산지 필터 매칭 여부
+        const isOriginMatch = !originFilter || (textOrg && textOrg.includes(originFilter));
+
+        if (isTextMatch && isOriginMatch) {
+          row.classList.remove('hide');
+          visibleCount++;
+        } else {
+          row.classList.add('hide');
+        }
+      }
+
+      setInfo(category, visibleCount, rows.length);
+      
+      // 결과 없음 메시지 표시/숨김
+      const noResultMsg = document.getElementById(`nr-${category}`);
+      if (noResultMsg) {
+        noResultMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // 초기 렌더링 (Initialization)
+    // --------------------------------------------------------------------------
+    const categories = ['ag', 'vi', 'aa', 'ad', 'vo', 'sf', 'ot'];
+    const allProducts = [];
+
+    // 개별 카테고리 렌더링
+    for (let c = 0; c < categories.length; c++) {
+      const category = categories[c];
+      const items = productData[category];
+      
+      buildRows(items, `tb-${category}`);
+      setInfo(category, items.length, items.length);
+      buildChips(category, items);
+      
+      // '전체' 탭을 위해 배열 모으기
+      for (let k = 0; k < items.length; k++) {
+        allProducts.push(items[k]);
+      }
+    }
+
+    // '전체' 탭 렌더링
+    buildRows(allProducts, 'tb-all');
+    document.getElementById('r-all').innerHTML = `<b>${allProducts.length}</b>개 품목`;
+
+    // --------------------------------------------------------------------------
+    // 탭 (Tab) 클릭 이벤트 등록
+    // --------------------------------------------------------------------------
+    const tabs = document.querySelectorAll('.tab');
+    for (let t = 0; t < tabs.length; t++) {
+      tabs[t].addEventListener('click', function() {
+        // 모든 탭 초기화 및 현재 탭 활성화
+        for (let i = 0; i < tabs.length; i++) {
+          tabs[i].classList.remove('active');
+        }
+        this.classList.add('active');
+
+        // 섹션 전환
+        const category = this.getAttribute('data-cat');
+        const sections = document.querySelectorAll('.section');
+        for (let i = 0; i < sections.length; i++) {
+          sections[i].classList.remove('active');
+        }
+        
+        const targetSection = document.getElementById(`sec-${category}`);
+        if (targetSection) {
+          targetSection.classList.add('active');
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+  </script>
+</body>
+</html>
